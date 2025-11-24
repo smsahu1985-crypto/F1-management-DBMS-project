@@ -102,6 +102,31 @@ app.get("/api/health", (req, res) => {
 
 // === API FOR VISUAL COMPONENTS ===
 
+app.get('/api/race-winners', (req, res) => {
+  const sql = `
+    SELECT 
+      r.Race_ID,
+      r.Name AS race_name,
+      r.Location,
+      r.RaceDate,
+      t.Team_ID,
+      t.Name AS winning_team
+    FROM Race r
+    LEFT JOIN Team t 
+      ON r.Winning_Team_ID = t.Team_ID
+    ORDER BY r.RaceDate;
+  `;
+
+  pool.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching race winners:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    res.json(results);
+  });
+});
+
+
 // GET Driver Standings
 app.get("/api/driver-standings", (req, res) => {
     const sql = `
@@ -338,6 +363,8 @@ app.put("/api/drivers/:id", (req, res) => {
         });
     });
 });
+
+
 
 // Catch-all 404 handler
 app.use((req, res) => {
