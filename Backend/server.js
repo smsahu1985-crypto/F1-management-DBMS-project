@@ -117,7 +117,7 @@ app.get('/api/race-winners', (req, res) => {
     ORDER BY r.RaceDate;
   `;
 
-  pool.query(sql, (err, results) => {
+  db.query(sql, (err, results) => {
     if (err) {
       console.error('Error fetching race winners:', err);
       return res.status(500).json({ error: 'Internal server error' });
@@ -190,16 +190,20 @@ app.get("/api/team-standings", (req, res) => {
 });
 
 // GET Races
+// GET Races (with winning team)
 app.get("/api/races", (req, res) => {
     const sql = `
         SELECT 
-            Race_ID, 
-            Name, 
-            Location, 
-            RaceDate,
-            Details
-        FROM Race 
-        ORDER BY RaceDate ASC
+            r.Race_ID, 
+            r.Name, 
+            r.Location, 
+            r.RaceDate,
+            r.Details,
+            t.Name AS WinningTeam
+        FROM Race r
+        LEFT JOIN Team t 
+          ON r.Winning_Team_ID = t.Team_ID
+        ORDER BY r.RaceDate ASC
     `;
     
     db.query(sql, (err, results) => {
@@ -210,7 +214,7 @@ app.get("/api/races", (req, res) => {
               details: err.message 
             });
         }
-        console.log(`✅ Fetched ${results.length} races`);
+        console.log(`✅ Fetched ${results.length} races (with winners)`);
         res.json(results);
     });
 });
