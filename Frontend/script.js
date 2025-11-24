@@ -185,6 +185,10 @@ function loadRaces() {
             month: 'short', 
             day: 'numeric' 
         }) : 'TBA';
+
+        const winnerText = race.WinningTeam 
+            ? `Winner: ${race.WinningTeam}`
+            : 'Winner: TBD';
         
         html += `
             <article class="race-card">
@@ -195,6 +199,7 @@ function loadRaces() {
                     <div>
                         <h3 class="race-card-title">${race.Name}</h3>
                         <p class="race-card-date">${raceDate}</p>
+                        <p class="race-card-winner">${winnerText}</p>
                     </div>
                     <span class="details-btn" data-modal-type="race" data-id="${race.Race_ID}">
                         View Details
@@ -356,28 +361,35 @@ document.addEventListener('click', (e) => {
         const id = modalBtn.dataset.id;
         
         if (type === 'race') {
-            const race = allRaces.find(r => r.Race_ID.toString() === id);
-            if (!race) return;
-            
-            const raceDate = race.RaceDate ? new Date(race.RaceDate).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            }) : 'TBA';
-            
-            modalBody.innerHTML = `
-                <h2 class="modal-title">${race.Name}</h2>
-                <div class="modal-stat">
-                    <span>Location</span>
-                    <strong>${race.Location}</strong>
-                </div>
-                <div class="modal-stat">
-                    <span>Date</span>
-                    <strong>${raceDate}</strong>
-                </div>
-                ${race.Details ? `<p style="margin-top:1rem;">${race.Details}</p>` : ''}
-            `;
-        }
+    const race = allRaces.find(r => r.Race_ID.toString() === id);
+    if (!race) return;
+    
+    const raceDate = race.RaceDate ? new Date(race.RaceDate).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    }) : 'TBA';
+
+    const winnerText = race.WinningTeam || 'TBD';
+    
+    modalBody.innerHTML = `
+        <h2 class="modal-title">${race.Name}</h2>
+        <div class="modal-stat">
+            <span>Location</span>
+            <strong>${race.Location}</strong>
+        </div>
+        <div class="modal-stat">
+            <span>Date</span>
+            <strong>${raceDate}</strong>
+        </div>
+        <div class="modal-stat">
+            <span>Winning Team</span>
+            <strong>${winnerText}</strong>
+        </div>
+        ${race.Details ? `<p style="margin-top:1rem;">${race.Details}</p>` : ''}
+    `;
+}
+
         
         if (type === 'driver') {
             const driver = allDriverStandings.find(d => d.Driver_ID.toString() === id);
